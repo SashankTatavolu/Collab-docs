@@ -1,4 +1,4 @@
-import { isolateSelection } from './isolateSelection.js';
+import { isolateSelection } from './isolateSelection.jsx';
 
 export default function Toolbar({ editor }) {
   if (!editor) return null;
