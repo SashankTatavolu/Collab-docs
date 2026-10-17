@@ -1,19 +1,29 @@
 # Collab Docs
 
 A lightweight collaborative document editor (Google Docs-inspired): rich-text editing, file import, sharing with
-permissions, and persistence. One Node process serves both the API and the built React app.
+permissions, export, and persistence. One Node process serves both the API and the built React app.
 
-**Live demo:** _<paste deployed URL here>_  ·  **Walkthrough video:** see `VIDEO_URL.txt`
+**Live demo:**  [collab-docs-sa7u.onrender.com](https://collab-docs-sa7u.onrender.com) ·  **Walkthrough video:** see [youtu.be/6L5xSxkzwUU](https://youtu.be/6L5xSxkzwUU)
 
 ## Demo accounts (no passwords, mocked auth)
 
-| User | Email |
-| --- | --- |
+| User          | Email                 |
+| ------------- | --------------------- |
 | Alice Johnson | `alice@example.com` |
-| Bob Martinez | `bob@example.com` |
-| Carol Singh | `carol@example.com` |
+| Bob Martinez  | `bob@example.com`   |
+| Carol Singh   | `carol@example.com` |
+
+> The live demo runs on a free host: the first load after inactivity can take up to a minute, and data may reset when the service restarts. If a document you created is gone, just create another.
 
 Click a user on the login screen. To see sharing, sign in as Alice in one tab and Bob in another tab. Sessions are stored per tab (`sessionStorage`), so you can sign in as different users in two tabs of the same browser. A login survives refresh but not closing the tab.
+
+## Quick tour for reviewers
+
+1. Sign in as **Alice**, click **+ New document**, rename it by clicking the title, and format some text.
+2. Click **Share**, add `bob@example.com` as **View only**.
+3. In a second tab, sign in as **Bob**: the document appears under **Shared with me**, opens read-only with a banner.
+4. Back as Alice, change Bob to **Can edit**; Bob can now edit.
+5. Try **Import file** on the dashboard (`.txt`, `.md`, `.docx`) and the **Export** menu in the editor.
 
 ## Run locally
 
@@ -41,7 +51,7 @@ npm test
 ```
 
 8 API tests (node:test, in-memory SQLite, real HTTP) cover: auth required, create/rename/edit/reopen, HTML sanitizing,
-validation, sharing (owner-only management, viewer vs editor, owned vs shared lists, revoke, hidden-doc 404s), and file import
+validation, sharing (owner-only management, viewer vs editor, owned vs shared lists, revoke, hidden-doc 404s), file import
 (`.md` structure, `.txt` escaping, unsupported / empty / corrupt files), and Markdown export (structure, headers, viewer access, hidden-doc 404).
 
 ### Docker
@@ -53,7 +63,7 @@ docker build -t collab-docs . && docker run -p 3001:3001 -v collab-data:/data co
 ## Features
 
 - **Documents:** create, rename (click the title), edit, autosave (800 ms debounce, with Saved / Saving / Failed status and retry), reopen.
-- **Formatting:** bold, italic, underline, headings 1-3, bulleted and numbered lists, undo/redo (Tiptap / ProseMirror). Stored as sanitized HTML.
+- **Formatting:** bold, italic, underline, headings 1-3, bulleted and numbered lists, undo/redo (Tiptap / ProseMirror). Stored as sanitized HTML. Headings and lists apply only to the selected text when you select part of a paragraph.
 - **File upload / import:** upload a **`.txt`, `.md`, or `.docx`** file and it becomes a new editable document (title taken from the filename).
   Supported types and the 5 MB limit are shown on the dashboard; anything else is rejected with a clear message.
   `.docx` imports keep headings, bold/italic/underline, and lists; images, tables, and comments are dropped.
@@ -63,10 +73,15 @@ docker build -t collab-docs . && docker run -p 3001:3001 -v collab-data:/data co
 - **Export (stretch feature):** the **Export** menu in the editor downloads the document as **Markdown** (headings, bold, italic, lists; underline is kept as inline `<u>` because Markdown has no underline) or produces a **PDF** through the browser's print dialog (choose "Save as PDF"; a print stylesheet hides the app chrome). Anyone with access, including view-only users, can export.
 - **Persistence:** SQLite (documents, shares, users, sessions). Everything survives refresh and server restart.
 
+## Project docs
+
+- `ARCHITECTURE.md`: what I prioritized, trade-offs, and what I'd build next
+- `AI_WORKFLOW.md`: how AI tools were used and how the output was verified
+- `SUBMISSION.md`: exactly what is included, status, and next steps
+
 ## Known limitations
 
 - Auth is mocked (seeded users, bearer-token sessions). Not for production use.
 - No real-time collaboration: saves are last-write-wins, so two people editing the same document at once can overwrite each other.
 - Free-tier hosting usually has an ephemeral disk, so a deployed instance may reset its data on redeploy or restart (seeded users come back automatically).
 - `.docx` import is best-effort (see above); PDF export relies on the browser's print dialog rather than server-side rendering.
-# Collab-docs
